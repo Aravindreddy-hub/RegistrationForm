@@ -11,7 +11,7 @@ app.use(cors());
 // MongoDB connection - Replace with your MongoDB Atlas connection string
 // For local development, use: "mongodb://127.0.0.1:27017/facebook-clone"
 // For production/sharing, use MongoDB Atlas connection string
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/facebook-clone";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://aravind1:Ramlaxman@cluster0.yq3mrlk.mongodb.net/facebook-clone?retryWrites=true&w=majority";
 
 mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
