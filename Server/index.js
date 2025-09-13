@@ -8,13 +8,17 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// MongoDB connection
-mongoose.connect("mongodb://127.0.0.1:27017/facebook-clone", {
+// MongoDB connection - Replace with your MongoDB Atlas connection string
+// For local development, use: "mongodb://127.0.0.1:27017/facebook-clone"
+// For production/sharing, use MongoDB Atlas connection string
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/facebook-clone";
+
+mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
-.then(() => console.log("MongoDB connected"))
-.catch(err => console.log(err));
+.then(() => console.log("MongoDB connected to:", MONGODB_URI.includes('mongodb.net') ? 'Atlas Cloud' : 'Local Database'))
+.catch(err => console.log("MongoDB connection error:", err));
 
 // User Schema
 const UserSchema = new mongoose.Schema({
