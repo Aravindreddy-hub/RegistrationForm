@@ -27,30 +27,59 @@ const User = mongoose.model("User", UserSchema);
 
 // Register API
 app.post("/register", async (req, res) => {
-    const { username, email, password } = req.body;
+    try {
+        const { username, email, password } = req.body;
+        
+        // Validate input
+        if (!username || !email || !password) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: "User already exists" });
+        const existingUser = await User.findOne({ email });
+        if (existingUser) return res.status(400).json({ message: "User already exists" });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, email, password: hashedPassword });
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({ username, email, password: hashedPassword });
 
-    await newUser.save();
-    res.json({ message: "User registered successfully" });
+        await newUser.save();
+        res.json({ message: "User registered successfully" });
+    } catch (error) {
+        console.error("Registration error:", error);
+        if (error.code === 11000) {
+            // Duplicate key error
+            if (error.keyPattern.username) {
+                return res.status(400).json({ message: "Username already exists" });
+            }
+            if (error.keyPattern.email) {
+                return res.status(400).json({ message: "Email already exists" });
+            }
+        }
+        res.status(500).json({ message: "Server error during registration" });
+    }
 });
 
 // Login API
 app.post("/login", async (req, res) => {
-    const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
+        
+        // Validate input
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email and password are required" });
+        }
 
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "User not found" });
+        const user = await User.findOne({ email });
+        if (!user) return res.status(400).json({ message: "User not found" });
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-    const token = jwt.sign({ id: user._id }, "secretkey", { expiresIn: "1h" });
-    res.json({ message: "Login successful", token, user });
+        const token = jwt.sign({ id: user._id }, "secretkey", { expiresIn: "1h" });
+        res.json({ message: "Login successful", token, user });
+    } catch (error) {
+        console.error("Login error:", error);
+        res.status(500).json({ message: "Server error during login" });
+    }
 });
 
 app.listen(5000, () => console.log("Server running on http://localhost:5000"));

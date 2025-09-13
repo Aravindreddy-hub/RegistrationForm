@@ -12,12 +12,24 @@ function Register() {
 
     const handleRegister = async (e) => {
         e.preventDefault();
+        
+        // Basic validation
+        if (!username || !email || !password) {
+            alert("Please fill in all fields");
+            return;
+        }
+        
         try {
             await axios.post("http://localhost:5000/register", { username, email, password });
             alert("Registration successful");
             navigate("/login");
         } catch (err) {
-            alert(err.response.data.message);
+            console.error("Registration error:", err);
+            if (err.response && err.response.data && err.response.data.message) {
+                alert(err.response.data.message);
+            } else {
+                alert("Registration failed. Please try again.");
+            }
         }
     };
 
@@ -25,11 +37,28 @@ function Register() {
         <div className="form-container">
             <h2>Register</h2>
             <form onSubmit={handleRegister}>
-                <input placeholder="Username" onChange={(e) => setUsername(e.target.value)} /><br />
-                <input placeholder="Email" onChange={(e) => setEmail(e.target.value)} /><br />
-                <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} /><br />
+                <input 
+                    placeholder="Username" 
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)} 
+                    required 
+                /><br />
+                <input 
+                    placeholder="Email" 
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)} 
+                    required 
+                /><br />
+                <input 
+                    type="password" 
+                    placeholder="Password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)} 
+                    required 
+                /><br />
                 <button type="submit">Register</button>
-                <Link to="/login">Already have an account? Login</Link>
+                <p><Link to="/login">Already have an account? Login</Link></p>
             </form>
         </div>
     );
