@@ -18,7 +18,7 @@ function Login() {
     }
     
     try {
-      const res = await axios.post("http://localhost:5000/login", { email, password });
+      const res = await axios.post("https://registrationform-ls2p.onrender.com", { email, password });
       localStorage.setItem("token", res.data.token);
       alert("Login successful");
       navigate("/home");
