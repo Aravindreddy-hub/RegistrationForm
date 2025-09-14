@@ -13,10 +13,7 @@ app.use(cors());
 // For production/sharing, use MongoDB Atlas connection string
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://aravind1:Ramlaxman@cluster0.yq3mrlk.mongodb.net/facebook-clone?retryWrites=true&w=majority";
 
-mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+mongoose.connect(MONGODB_URI)
 .then(() => console.log("MongoDB connected to:", MONGODB_URI.includes('mongodb.net') ? 'Atlas Cloud' : 'Local Database'))
 .catch(err => console.log("MongoDB connection error:", err));
 
@@ -105,3 +102,6 @@ app.listen(5000, '0.0.0.0', () => {
     console.log("Server running on http://localhost:5000");
     console.log("Server accessible from other devices on your network");
 });
+
+// Export for Vercel
+module.exports = app;
