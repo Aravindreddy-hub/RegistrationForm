@@ -3,19 +3,18 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// MongoDB connection - Replace with your MongoDB Atlas connection string
-// For local development, use: "mongodb://127.0.0.1:27017/facebook-clone"
-// For production/sharing, use MongoDB Atlas connection string
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://aravind1:Ramlaxman@cluster0.yq3mrlk.mongodb.net/facebook-clone?retryWrites=true&w=majority";
+// MongoDB connection using environment variables
+const MONGODB_URI = process.env.MONGODB_URI;
 
 mongoose.connect(MONGODB_URI)
-.then(() => console.log("MongoDB connected to:", MONGODB_URI.includes('mongodb.net') ? 'Atlas Cloud' : 'Local Database'))
-.catch(err => console.log("MongoDB connection error:", err));
+    .then(() => console.log("MongoDB connected to:", MONGODB_URI.includes('mongodb.net') ? 'Atlas Cloud' : 'Local Database'))
+    .catch(err => console.log("MongoDB connection error:", err));
 
 // User Schema
 const UserSchema = new mongoose.Schema({
@@ -30,9 +29,9 @@ const User = mongoose.model("User", UserSchema);
 app.post("/register", async (req, res) => {
     try {
         const { username, email, password } = req.body;
-        
+
         console.log("Registration attempt:", { username, email });
-        
+
         // Validate input
         if (!username || !email || !password) {
             console.log("Missing fields");
@@ -78,7 +77,7 @@ app.post("/register", async (req, res) => {
 app.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
-        
+
         // Validate input
         if (!email || !password) {
             return res.status(400).json({ message: "Email and password are required" });
@@ -90,7 +89,7 @@ app.post("/login", async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-        const token = jwt.sign({ id: user._id }, "secretkey", { expiresIn: "1h" });
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
         res.json({ message: "Login successful", token, user });
     } catch (error) {
         console.error("Login error:", error);
@@ -98,10 +97,9 @@ app.post("/login", async (req, res) => {
     }
 });
 
-app.listen(5000, '0.0.0.0', () => {
-    console.log("Server running on http://localhost:5000");
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on http://localhost:${PORT}`);
     console.log("Server accessible from other devices on your network");
 });
-
-// Export for Vercel
-module.exports = app;
